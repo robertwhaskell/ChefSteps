@@ -1,0 +1,66 @@
+<!doctype html>
+
+<html ng-app="angularApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ChefSteps Technical Question</title>
+    
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script>
+    <script src="core.js"></script>
+
+</head>
+<body ng-controller="mainController">
+    <div id="wrapper">
+        <header>
+            <h1>Welcome to this thing!</h1>
+            <h6>
+                Select the size of the array and what percentage of the array should be duplicates.
+                Then, choose which sort of duplicate-removal system you'd like to use - the
+                fast-but-memory-intesive one, or the slow-but-memory-light one (the second option
+                really is very slow - it's set to time out after a few seconds, which is usually the
+                case for arrays larger than three thousand). The arrays themselves are output to the 
+                console.
+            </h6>
+        </header>
+
+        <content>
+            <div  class="fullDisplay">
+                <label for="arraySizeInput">Enter size of array:</label>
+                <input type="number" name="arraySizeInput" ng-model="arraySize" />
+                <label for="arrayDuplicateInput">Enter percentage of duplicates:</label>
+                <input type="number" min="0" max="100" name="arrayDuplicateInput" ng-model="duplicatePercentage" />
+            </div>
+            <div class="minDisplay">
+                <div>Array Size: {{arraySize}}</div>
+                <input type="range" min="1" max="500000" ng-model="arraySize" />
+                <div>Percentage of Duplicates: {{duplicatePercentage}}</div>
+                <input type="range" min="0" max="100" ng-model="duplicatePercentage" />
+            </div>
+            <button ng-click="getEmailArray()">Generate array</button>
+            <button ng-click="removeDuplicateEmails(true)" ng-disabled="!emailArray || arraySorted || removingDupes">remove dupes fast</button>
+            <button ng-click="removeDuplicateEmails(false)" ng-disabled="!emailArray || arraySorted || removingDupes">remove dupes slow</button>
+            <div ng-show="generatingArray">Generating...</div>
+            <div ng-show="!generatingArray && emailArray && !arraySorted && !removingDupes">Unsorted Array Available.</div>
+            <div ng-show="removingDupes">Removing duplicates...</div>
+            <div ng-show="arraySorted && !emailArray">Process timed out at 5+ seconds.</div>
+            <div ng-show="arraySorted && emailArray">
+                <div>Duplicates removed.</div> 
+                <div>Time taken: {{removalTime}} ml</div>
+                <div>Array length: {{emailArray.length}}</div>
+            </div>
+        </content>
+        
+        <footer>
+            <nav>
+                <a href="https://www.linkedin.com/in/robertwhaskell">LinkedIn</a>
+                <a href="https://github.com/robertwhaskell">Github</a>
+                <a href="https://www.ted.com/talks/bobby_mcferrin_hacks_your_brain_with_music">BestTedTalk</a>
+            </nav>    
+        </footer>
+    </div>
+</body>
+</html>

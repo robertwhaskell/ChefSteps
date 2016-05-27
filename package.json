@@ -1,0 +1,12 @@
+{
+  "name": "ChefSteps-App",
+  "version": "0.0.0",
+  "description": "Simple app for ChefSteps",
+  "main": "server.js",
+  "author": "RobertHaskell",
+  "dependencies": {
+    "express": "^4.13.4",
+  },
+  "devDependencies": {
+  }
+}
