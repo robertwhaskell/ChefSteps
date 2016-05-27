@@ -5,7 +5,7 @@
   "main": "server.js",
   "author": "RobertHaskell",
   "dependencies": {
-    "express": "^4.13.4",
+    "express": "^4.13.4"
   },
   "devDependencies": {
   }
