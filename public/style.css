@@ -25,6 +25,10 @@ footer {
 
 }
 
+nav {
+    font-size: 10px;
+}
+
 button {
     margin: auto;
     display: block;
@@ -45,8 +49,15 @@ input {
 
 a {
     text-decoration: none;
+    -webkit-transition: color .5s;
+    transition: color .5s;
 }
-@media only screen and (max-width: 500px) {
+
+a:hover {
+  color: white;
+}
+
+@media only screen and (max-width: 800px) {
     .fullDisplay {
         display: none;
     }

@@ -1,6 +1,6 @@
 <!doctype html>
 
-<html ng-app="angularApp">
+<html ng-app="app">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,7 +16,7 @@
 <body ng-controller="mainController">
     <div id="wrapper">
         <header>
-            <h1>Welcome to this thing!</h1>
+            <h1>Instructions:</h1>
             <h6>
                 Select the size of the array and what percentage of the array should be duplicates.
                 Then, choose which sort of duplicate-removal system you'd like to use - the
@@ -43,12 +43,8 @@
             <button ng-click="getEmailArray()">Generate array</button>
             <button ng-click="removeDuplicateEmails(true)" ng-disabled="!emailArray || arraySorted || removingDupes">remove dupes fast</button>
             <button ng-click="removeDuplicateEmails(false)" ng-disabled="!emailArray || arraySorted || removingDupes">remove dupes slow</button>
-            <div ng-show="generatingArray">Generating...</div>
-            <div ng-show="!generatingArray && emailArray && !arraySorted && !removingDupes">Unsorted Array Available.</div>
-            <div ng-show="removingDupes">Removing duplicates...</div>
-            <div ng-show="arraySorted && !emailArray">Process timed out at 5+ seconds.</div>
+            <h3>{{progressText}}</h3>
             <div ng-show="arraySorted && emailArray">
-                <div>Duplicates removed.</div> 
                 <div>Time taken: {{removalTime}} ml</div>
                 <div>Array length: {{emailArray.length}}</div>
             </div>
@@ -57,8 +53,8 @@
         <footer>
             <nav>
                 <a href="https://www.linkedin.com/in/robertwhaskell">LinkedIn</a>
-                <a href="https://github.com/robertwhaskell">Github</a>
-                <a href="https://www.ted.com/talks/bobby_mcferrin_hacks_your_brain_with_music">BestTedTalk</a>
+                <a href="https://github.com/robertwhaskell/ChefSteps">Source Code</a>
+                <a href="https://www.ted.com/talks/bobby_mcferrin_hacks_your_brain_with_music">Best Ted Talk</a>
             </nav>    
         </footer>
     </div>

@@ -1,19 +1,19 @@
-var angularApp = angular.module('angularApp', []);
+var app = angular.module('app', []);
 
-angularApp.controller('mainController', function($scope, arrayProcessor){
+app.controller('mainController', function($scope, arrayProcessor, testSuite){
 
-    //check to see if we can use web workers for the heavy 
-    //computational lifting
+    //check to see if we can use web workers are available.
     var useWorkers = false;
     if (typeof(Worker) !== "undefined") useWorkers = true;
 
     $scope.arraySize = 100000;
     $scope.duplicatePercentage = 50;
+    $scope.progressText = 'No Array Generated';
     
     $scope.getEmailArray = function () {
         $scope.arraySorted = false;
         $scope.generatingArray = true;
-
+        $scope.progressText = 'Generating array...';
         /*
         Since we might conveivably have to with array lengths in the
         hundreds of thousands, I thought it might be a good time to take
@@ -32,6 +32,9 @@ angularApp.controller('mainController', function($scope, arrayProcessor){
             w.onmessage = function(message) {
                 $scope.emailArray = message.data;
                 $scope.generatingArray = false;
+                $scope.progressText = 'Array available.';
+                console.log('Generated email array:');
+                console.log($scope.emailArray);
                 $scope.$apply();
                 w.terminate();
                 w = undefined;
@@ -41,10 +44,14 @@ angularApp.controller('mainController', function($scope, arrayProcessor){
             //the traditional service structure.
             $scope.emailArray = arrayProcessor.generateArray($scope.arraySize, $scope.duplicatePercentage);
             $scope.generatingArray = false;
+            $scope.progressText = 'Array available.';
+            console.log('Generated email array:');
+            console.log($scope.emailArray);
         }
     }
 
     $scope.removeDuplicateEmails = function (fast) {
+        $scope.progressText = 'Removing duplicates...';
         $scope.removingDupes = true;
         if (useWorkers) {
             if(typeof(worker) == "undefined") {
@@ -56,11 +63,13 @@ angularApp.controller('mainController', function($scope, arrayProcessor){
             }
             w.postMessage(data)
             w.onmessage = function(message) {
-                console.log(message);
                 $scope.emailArray = message.data.array;
                 $scope.removalTime = message.data.timer;
                 $scope.arraySorted = true;
                 $scope.removingDupes = false;
+                $scope.progressText = $scope.emailArray ? 'Duplicates Removed.' : 'Process timed out';
+                console.log('Array with duplicates stripped:');
+                console.log($scope.emailArray);
                 $scope.$apply();
                 w.terminate();
                 w = undefined;
@@ -70,13 +79,16 @@ angularApp.controller('mainController', function($scope, arrayProcessor){
             $scope.removalTime = arrayProcessor.timer;
             $scope.arraySorted = true;
             $scope.removingDupes = false;
+            $scope.progressText = $scope.emailArray ? 'Duplicates Removed.' : 'Process timed out';
+            console.log('Array with duplicates stripped:');
+            console.log($scope.emailArray);
         }
 
     }
 
 })
 
-angularApp.service('arrayProcessor', function(){
+app.service('arrayProcessor', function(){
 
 
     var shuffle = function(array) {
@@ -93,11 +105,18 @@ angularApp.service('arrayProcessor', function(){
     }
 
     this.generateArray = function (size, dupeNum) {
+        if (size == 0) return [];
         var dupeDiff = Math.floor(size * dupeNum/100)
         if (dupeDiff == size) dupeDiff--;
         var emailArray = [];
+        var emailHash = {};
         for (var i = 0; i < size - dupeDiff; i++) {
+            var email = Math.random() + '@email.com';
+            while (emailHash[email]) {
+                email = Math.random() + '@email.com';
+            }
             emailArray.push(Math.random() + '@email.com');
+            emailHash[email] = 0;
         }
         for (var i = 0; i < dupeDiff; i++) {
             emailArray.push(emailArray[i]);
@@ -163,4 +182,181 @@ angularApp.service('arrayProcessor', function(){
         returnArray = returnArray ? returnArray : array;
         return returnArray;
     }
+});
+
+app.service('testSuite', function(arrayProcessor){
+    var failArray = []
+    var testPass = true;
+    //tests for array generation
+
+    //Easy test: If I want an array with no duplicates, of size 5,
+    //I should recieve an array who's length == 5, and that contains
+    //no duplicates.
+    var easyArray = arrayProcessor.generateArray(5, 0);
+    if (easyArray.length == 5) {
+        for (var i = 0; i < easyArray.length; i++){
+            for (var j = i + 1; j < easyArray.length; j++) {
+                if (easyArray[i] == easyArray[j]) {
+                    testPass = false;
+                }
+            }
+        }
+    } else {
+        testPass = false;
+    }
+
+    if (!testPass) failArray.push('easyArray test failed');
+
+    //slightly more complicated: same test, much larger array.
+    testPass = true;
+    var lessEasyArray = arrayProcessor.generateArray(2000, 0);
+    if (lessEasyArray.length == 2000) {
+        for (var i = 0; i < lessEasyArray.length; i++){
+            for (var j = i + 1; j < lessEasyArray.length; j++) {
+                if (lessEasyArray[i] == lessEasyArray[j]) {
+                    testPass = false;
+                }
+            }
+        }
+    } else {
+        testPass = false;
+    }
+
+    if (!testPass) failArray.push('lessEasyArray test failed');
+
+    //if I want an array of length 4 with 50% duplications, I 
+    //should get back and array of length 4, with two unique values,
+    //and two duplicates
+    testPass = true;
+    var evenDuplicatArray = arrayProcessor.generateArray(4, 50);
+    var duplicateCounter = 0;
+    if (evenDuplicatArray.length == 4) {
+        for (var i = 0; i < evenDuplicatArray.length; i++){
+            for (var j = i + 1; j < evenDuplicatArray.length; j++) {
+                if (evenDuplicatArray[i] == evenDuplicatArray[j]) {
+                    duplicateCounter++;
+                }
+            }
+        }
+    } else {
+        testPass = false;
+    }
+
+    if (duplicateCounter != 2) {
+        testPass = false;
+    }
+
+    if (!testPass) failArray.push('evenDuplicateArray test failed');
+
+    //if I want an array of length 5 with 50% duplications, I 
+    //should get back and array of length 5, with three unique values,
+    //and two duplicates
+    testPass = true;
+    var oddDuplicatArray = arrayProcessor.generateArray(4, 50);
+    duplicateCounter = 0;
+    if (oddDuplicatArray.length == 4) {
+        for (var i = 0; i < oddDuplicatArray.length; i++){
+            for (var j = i + 1; j < oddDuplicatArray.length; j++) {
+                if (oddDuplicatArray[i] == oddDuplicatArray[j]) {
+                    duplicateCounter++;
+                }
+            }
+        }
+    } else {
+        testPass = false;
+    }
+
+    if (duplicateCounter != 2) {
+        testPass = false;
+    }
+
+    if (!testPass) failArray.push('oddDuplicatArray test failed');
+
+    //if I pass want an array of length 0, I should be returned an
+    //empty array
+    testPass = true;
+    var emptyArray = arrayProcessor.generateArray(0, 50);
+    if (emptyArray.length) failArray.push('emptyArray test failed');
+
+
+    //tests for duplication removal;
+
+    //testing for fast removal: 
+
+    //if I pass in an array with no duplicates, I should get an
+    //array with the same elements, in the same order, back
+    testPass = true;
+    var easyDupeRemoveArray = arrayProcessor.generateArray(4, 0);
+    var otherArray = arrayProcessor.removeDuplicates(easyDupeRemoveArray, true);
+    if (easyDupeRemoveArray.length == otherArray.length) {
+        for (var i = 0; i < easyDupeRemoveArray; i++) {
+            if (easyDupeRemoveArray[i] != otherArray[i]) {
+                testPass = false;
+                break;
+            }
+        }
+    } else {
+        testPass = false;
+    }
+
+    if (!testPass) failArray.push('easyDupeRemoveArray test failed');
+
+    //if I pass in an empty array, I should get an empty array back
+    var emptyDupeRemoveArray = arrayProcessor.removeDuplicates([], true);
+    if (emptyDupeRemoveArray.length != 0) {
+        failArray.push('emptyDupeRemoveArray test failed');
+    }
+
+    //if I pass in an array with length five and 50% duplicates, I should 
+    //get back an array of length 3, which contains all of the unique emails 
+    //from the previous array, in order;
+    testPass = true;
+    var initialArray = arrayProcessor.generateArray(3, 0);
+    var basicDupeRemoveArray = initialArray.slice();
+    for (var i = 0; i < 2; i++) {
+        basicDupeRemoveArray.push(initialArray[i]);
+    }
+    var basicDupeRemoveArray = arrayProcessor.removeDuplicates(basicDupeRemoveArray, true);
+    if (basicDupeRemoveArray.length == initialArray.length) {
+        for (var i = 0; i < basicDupeRemoveArray.length; i++) {
+            if (basicDupeRemoveArray[i] != initialArray[i]) {
+                testPass = false;
+                break;
+            }
+        }
+    } else {
+        testPass = false;
+    }
+    if (!testPass) failArray.push('basicDupeRemoveArray test failed');
+
+    //testing for slow removal: 
+
+    //if I pass in an array with no duplicates, I should get the 
+    //same array back;
+    var easyDupeRemoveArraySlow = arrayProcessor.generateArray(4, 0);
+    var otherArray = arrayProcessor.removeDuplicates(easyDupeRemoveArraySlow, false);
+    if (easyDupeRemoveArraySlow != otherArray) failArray.push('easyDupeRemoveArraySlow test failed');
+
+    //if I pass in an empty array, I should get the same array back;
+    var emptyDupeRemoveArraySlow = arrayProcessor.generateArray(0, 0);
+    var otherArray = arrayProcessor.removeDuplicates(emptyDupeRemoveArraySlow, false);
+    if (emptyDupeRemoveArraySlow != otherArray) failArray.push('emptyDupeRemoveArraySlow test failed');
+
+    //if I pass in an array with length five and 50% duplicates, I should 
+    //get back an array of length 3, which contains all of the unique emails 
+    //from the previous array, in order;
+    var initialArray = arrayProcessor.generateArray(3, 0);
+    var basicDupeRemoveArraySlow = initialArray;
+    for (var i = 0; i < 2; i++) {
+        basicDupeRemoveArraySlow.push(initialArray[i]);
+    }
+    var basicDupeRemoveArraySlow = arrayProcessor.removeDuplicates(basicDupeRemoveArraySlow, false);
+    if (basicDupeRemoveArraySlow != initialArray) failArray.push('basicDupeRemoveArraySlow test failed');
+
+    if (failArray.length) {
+        console.log('tests failed: ' + failArray.join(', '));
+    } else {
+        console.log('all tests passed!')
+    }
+
 })
