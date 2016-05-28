@@ -41,7 +41,7 @@
                 <input type="range" min="0" max="100" ng-model="duplicatePercentage" />
             </div>
             <div id="warningBlock">
-                <div ng-show="duplicatePercentage == undefined">Duplicate Percentage must be between 0 and 500</div>
+                <div ng-show="duplicatePercentage == undefined">Duplicate Percentage must be between 0 and 100</div>
                 <div ng-show="arraySize == undefined">Array size must be between 0 and 500000</div>
             </div>
             <button ng-click="getEmailArray()" ng-disabled="duplicatePercentage == undefined || arraySize == undefined">Generate array</button>
