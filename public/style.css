@@ -38,15 +38,6 @@ input {
     display: inline-block;
 }
 
-#wrapper {
-    min-height: 100%;
-    position: relative;
-}
-
-.minDisplay {
-    display: none;
-}
-
 a {
     text-decoration: none;
     -webkit-transition: color .5s;
@@ -57,11 +48,26 @@ a:hover {
   color: white;
 }
 
+#warningBlock {
+  font-size: 10px;
+  color: red;
+  min-height: 40px;
+}
+
+#wrapper {
+    min-height: 100%;
+    position: relative;
+}
+
+#minDisplay {
+    display: none;
+}
+
 @media only screen and (max-width: 800px) {
-    .fullDisplay {
+    #fullDisplay {
         display: none;
     }
-    .minDisplay {
+    #minDisplay {
         display: block;
     }
 }

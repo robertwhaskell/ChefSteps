@@ -28,19 +28,23 @@
         </header>
 
         <content>
-            <div  class="fullDisplay">
+            <div id="fullDisplay">
                 <label for="arraySizeInput">Enter size of array:</label>
-                <input type="number" name="arraySizeInput" ng-model="arraySize" />
+                <input type="number" min="0" max="500000" name="arraySizeInput" ng-model="arraySize" />
                 <label for="arrayDuplicateInput">Enter percentage of duplicates:</label>
                 <input type="number" min="0" max="100" name="arrayDuplicateInput" ng-model="duplicatePercentage" />
             </div>
-            <div class="minDisplay">
+            <div id="minDisplay">
                 <div>Array Size: {{arraySize}}</div>
                 <input type="range" min="1" max="500000" ng-model="arraySize" />
                 <div>Percentage of Duplicates: {{duplicatePercentage}}</div>
                 <input type="range" min="0" max="100" ng-model="duplicatePercentage" />
             </div>
-            <button ng-click="getEmailArray()">Generate array</button>
+            <div id="warningBlock">
+                <div ng-show="duplicatePercentage == undefined">Duplicate Percentage must be between 0 and 500</div>
+                <div ng-show="arraySize == undefined">Array size must be between 0 and 500000</div>
+            </div>
+            <button ng-click="getEmailArray()" ng-disabled="duplicatePercentage == undefined || arraySize == undefined">Generate array</button>
             <button ng-click="removeDuplicateEmails(true)" ng-disabled="!emailArray || arraySorted || removingDupes">remove dupes fast</button>
             <button ng-click="removeDuplicateEmails(false)" ng-disabled="!emailArray || arraySorted || removingDupes">remove dupes slow</button>
             <h3>{{progressText}}</h3>
