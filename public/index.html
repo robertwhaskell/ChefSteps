@@ -44,7 +44,7 @@
                 <div ng-show="duplicatePercentage == undefined">Duplicate Percentage must be between 0 and 100</div>
                 <div ng-show="arraySize == undefined">Array size must be between 0 and 500000</div>
             </div>
-            <button ng-click="getEmailArray()" ng-disabled="duplicatePercentage == undefined || arraySize == undefined">Generate array</button>
+            <button ng-click="getEmailArray()" ng-disabled="duplicatePercentage == undefined || arraySize == undefined || removingDupes">Generate array</button>
             <button ng-click="removeDuplicateEmails(true)" ng-disabled="!emailArray || arraySorted || removingDupes">remove dupes fast</button>
             <button ng-click="removeDuplicateEmails(false)" ng-disabled="!emailArray || arraySorted || removingDupes">remove dupes slow</button>
             <h3>{{progressText}}</h3>
